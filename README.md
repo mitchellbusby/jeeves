@@ -1,0 +1,16 @@
+# jeeves
+
+Jeeves is the robot to help me remember what I've spent in my 40-ish hours of work over the previous week!
+
+Tell him what you did:
+
+<h3 align="center">
+  <img src="screenshots/reflect.png" />
+</h3>
+
+And he'll remind you the following week when you get around to writing your status update:
+
+
+<h3 align="center">
+  <img src="screenshots/recall.png" />
+</h3>
