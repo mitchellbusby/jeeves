@@ -5,10 +5,10 @@ from urllib.parse import parse_qs
 import arrow
 from chalice import Chalice
 from chalicelib.reflection_model import ReflectionModel
+from chalicelib.decorators import requires_user_id
+
 
 app = Chalice(app_name="jeeves")
-
-enabled_user_ids = ["UL7S0PCQH"]
 
 
 @app.route("/")
@@ -20,13 +20,9 @@ def index():
 @app.route(
     "/reflect", methods=["POST"], content_types=["application/x-www-form-urlencoded"]
 )
+@requires_user_id(app)
 def reflect():
     parsed = parse_qs(app.current_request.raw_body.decode())
-
-    user_id = parsed.get("user_id")[0]
-
-    if user_id not in enabled_user_ids:
-        return "Hey! You're not Mitchell! Quit it 😅"
 
     stuff = parsed.get("text")
 
@@ -41,13 +37,8 @@ def reflect():
 @app.route(
     "/recall", methods=["POST"], content_types=["application/x-www-form-urlencoded"]
 )
+@requires_user_id(app)
 def recall():
-    parsed = parse_qs(app.current_request.raw_body.decode())
-
-    user_id = parsed.get("user_id")[0]
-
-    if user_id not in enabled_user_ids:
-        return "Hey! You're not Mitchell! Quit it 😅"
 
     a_week_ago = datetime.datetime.utcnow() - datetime.timedelta(days=7)
 
@@ -90,3 +81,4 @@ def persist_reflection(raw_text):
 
 def get_week_number():
     return datetime.date.today().isocalendar()[1]
+
