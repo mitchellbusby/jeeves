@@ -1,34 +1,12 @@
 import datetime
-import os
 import uuid
 from urllib.parse import parse_qs
 
 import arrow
 from chalice import Chalice
-from pynamodb.attributes import (
-    NumberAttribute,
-    UnicodeAttribute,
-    UnicodeSetAttribute,
-    UTCDateTimeAttribute,
-)
-from pynamodb.models import Model
+from chalicelib.reflection_model import ReflectionModel
 
 app = Chalice(app_name="jeeves")
-
-REFLECTION_TABLE_NAME = os.environ.get("APP_TABLE_NAME", "")
-
-
-class ReflectionModel(Model):
-    class Meta:
-        table_name = REFLECTION_TABLE_NAME
-        region = "us-west-1"
-
-    reflection_text = UnicodeAttribute(attr_name="ReflectionText")
-    reflection_id = UnicodeAttribute(hash_key=True, attr_name="ReflectionId")
-    week_number = NumberAttribute(attr_name="WeekNumber")
-    tags = UnicodeSetAttribute(attr_name="Tags")
-    creation_time_utc = UTCDateTimeAttribute(attr_name="CreationTimeUtc")
-
 
 enabled_user_ids = ["UL7S0PCQH"]
 
