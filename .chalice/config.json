@@ -1,0 +1,14 @@
+{
+  "version": "2.0",
+  "app_name": "jeeves",
+  "manage_iam_role": false,
+  "iam_role_arn": "arn:aws:iam::456398298798:role/jeeves-dev",
+  "stages": {
+    "dev": {
+      "api_gateway_stage": "api"
+    },
+    "environment_variables": {
+      "APP_TABLE_NAME": "jeeves-recall"
+    }
+  }
+}
