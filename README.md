@@ -14,3 +14,15 @@ And he'll remind you the following week when you get around to writing your stat
 <h3 align="center">
   <img src="screenshots/recall.png" />
 </h3>
+
+## Running it
+
+For now, you pretty much can't run him locally; sorry.
+
+## Deploying it
+
+Make sure you have chalice installed, and then:
+
+```
+$ ./deploy.sh
+```
