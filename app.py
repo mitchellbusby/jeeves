@@ -6,7 +6,8 @@ import os
 import uuid
 import json
 from pynamodb.models import Model
-from pynamodb.attributes import UnicodeAttribute, NumberAttribute, UnicodeSetAttribute
+from pynamodb.attributes import UnicodeAttribute, NumberAttribute, UnicodeSetAttribute, UTCDateTimeAttribute
+import arrow
 
 app = Chalice(app_name='jeeves')
 
@@ -20,13 +21,14 @@ class ReflectionModel(Model):
   reflection_id = UnicodeAttribute(hash_key=True, attr_name='ReflectionId')
   week_number = NumberAttribute(attr_name='WeekNumber')
   tags = UnicodeSetAttribute(attr_name='Tags')
-
+  creation_time_utc = UTCDateTimeAttribute(attr_name="CreationTimeUtc")
 
 enabled_user_ids = ['UL7S0PCQH']
 
 @app.route('/')
 def index():
-    return {'hello': 'world'}
+  # Simple uptime check :grin:
+  return {'hello': 'world'}
 
 @app.route('/reflect', methods=["POST"], content_types=['application/x-www-form-urlencoded'])
 def reflect():
@@ -55,13 +57,22 @@ def recall():
   if user_id not in enabled_user_ids:
     return "Hey! You're not Mitchell! Quit it 😅"
 
-  week_number_to_find = get_week_number() - 1
+  a_week_ago = datetime.datetime.utcnow() - datetime.timedelta(days=7)
 
-  results = ReflectionModel.scan(filter_condition=ReflectionModel.week_number == week_number_to_find)
+  results = ReflectionModel.scan(filter_condition=ReflectionModel.creation_time_utc > a_week_ago)
 
-  results_mapped = [result.reflection_text for result in results]
+  sort_fn = lambda x: x.creation_time_utc
 
-  return json.dumps(results_mapped)
+  results = sorted(list(results), key=sort_fn, reverse=True)
+
+  string = ""
+
+  for result in results:
+    humanized_time = arrow.get(result.creation_time_utc).humanize()
+    result_as_string = f"{result.reflection_text} ({humanized_time})"
+    string += "\n" + result_as_string
+
+  return string
 
 def persist_reflection(raw_text):
   # Get tags
@@ -78,7 +89,7 @@ def persist_reflection(raw_text):
   model.reflection_text = text
   model.week_number = week_number
   model.tags = tags
-
+  model.creation_time_utc = datetime.datetime.utcnow()
   model.save()
 
 
