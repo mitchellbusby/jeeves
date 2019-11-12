@@ -1,27 +1,26 @@
-from urllib.parse import urlparse, parse_qs
-from chalice import Chalice
 import datetime
-import boto3
 import os
 import uuid
-import json
-from pynamodb.models import Model
+from urllib.parse import parse_qs
+
+import arrow
+from chalice import Chalice
 from pynamodb.attributes import (
-    UnicodeAttribute,
     NumberAttribute,
+    UnicodeAttribute,
     UnicodeSetAttribute,
     UTCDateTimeAttribute,
 )
-import arrow
+from pynamodb.models import Model
 
 app = Chalice(app_name="jeeves")
 
-reflection_table_name = os.environ.get("APP_TABLE_NAME", "")
+REFLECTION_TABLE_NAME = os.environ.get("APP_TABLE_NAME", "")
 
 
 class ReflectionModel(Model):
     class Meta:
-        table_name = reflection_table_name
+        table_name = REFLECTION_TABLE_NAME
         region = "us-west-1"
 
     reflection_text = UnicodeAttribute(attr_name="ReflectionText")
@@ -113,4 +112,3 @@ def persist_reflection(raw_text):
 
 def get_week_number():
     return datetime.date.today().isocalendar()[1]
-
