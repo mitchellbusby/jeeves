@@ -4,3 +4,4 @@ pynamodb
 arrow
 pylint
 rope
+pytest

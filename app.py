@@ -6,6 +6,7 @@ import arrow
 from chalice import Chalice
 from chalicelib.reflection_model import ReflectionModel
 from chalicelib.decorators import requires_user_id
+from chalicelib.parsers import recall_parse
 
 
 app = Chalice(app_name="jeeves")
@@ -24,9 +25,9 @@ def index():
 def reflect():
     parsed = parse_qs(app.current_request.raw_body.decode())
 
-    stuff = parsed.get("text")
+    message = parsed.get("text")
 
-    reflect = stuff[0]
+    reflect = message[0]
 
     if ReflectionModel.exists():
         persist_reflection(reflect)
@@ -39,16 +40,32 @@ def reflect():
 )
 @requires_user_id(app)
 def recall():
+    parsed = parse_qs(app.current_request.raw_body.decode())
+    message = parsed.get("text")[0]
 
-    a_week_ago = datetime.datetime.utcnow() - datetime.timedelta(days=7)
+    unpacked = recall_parse(message)
+
+    if unpacked["type"] == "tag_search":
+        return "Sorry, haven't implemented that one yet~"
+
+    # Default is 7 days
+    delta = datetime.timedelta(days=7)
+
+    if unpacked["type"] == "specified_timeframe_search":
+        delta = get_delta_from_parsed_recall(unpacked)
+
+    start_date = datetime.datetime.utcnow() - delta
 
     results = ReflectionModel.scan(
-        filter_condition=ReflectionModel.creation_time_utc > a_week_ago
+        filter_condition=ReflectionModel.creation_time_utc > start_date
     )
 
     sort_fn = lambda x: x.creation_time_utc
 
     results = sorted(list(results), key=sort_fn, reverse=True)
+
+    if len(results) == 0:
+        return "Sorry, there were no reflections for the timeframe you specified! 😅"
 
     string = ""
 
@@ -82,3 +99,14 @@ def persist_reflection(raw_text):
 def get_week_number():
     return datetime.date.today().isocalendar()[1]
 
+
+def get_delta_from_parsed_recall(recall):
+    number = recall["number"]
+    timeframe_type = recall["timeframe_type"]
+    if timeframe_type == "m":
+        # Note: this one is an approximation
+        return datetime.timedelta(days=number * 28)
+    if timeframe_type == "d":
+        return datetime.timedelta(days=number)
+    if timeframe_type == "h":
+        return datetime.timedelta(hours=number)
