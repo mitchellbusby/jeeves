@@ -1,3 +1,4 @@
 {
-  "python.pythonPath": "/Users/mitchellbusby/repos/jeeves/env/bin/python3.7"
+  "python.pythonPath": "/Users/mitchellbusby/repos/jeeves/env/bin/python3.7",
+  "python.formatting.provider": "black"
 }
