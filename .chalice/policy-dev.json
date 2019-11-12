@@ -10,8 +10,7 @@
                 "logs:PutLogEvents"
             ],
             "Resource": [
-                "arn:aws:logs:*:*:*",
-                "arn:aws:dynamodb:*:456398298798:table/jeeves-recall"
+                "arn:aws:logs:*:*:*"
             ]
         },
         {
